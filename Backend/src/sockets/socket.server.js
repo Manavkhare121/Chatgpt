@@ -3,6 +3,7 @@ import cookie from "cookie";
 import jwt from "jsonwebtoken";
 import { usermodel } from "../models/user.model.js";
 import { generateResponse } from "../services/ai.service.js";
+import { messageModel } from "../models/message.model.js";
 
 function initSocketServer(httpServer) {
     const io = new Server(httpServer, {});
@@ -30,9 +31,33 @@ function initSocketServer(httpServer) {
 
         socket.on("ai-message", async (messagePayload) => {
             console.log(messagePayload);
+            await messageModel.create({
+                chat:messagePayload.chat,
+                user:socket.user._id,
+                content:messagePayload.message,
+                role:"User"
+            })
 
+           
             const response = await generateResponse(messagePayload.message);
 
+            await messageModel.create({
+                chat:messagePayload.chat,
+                user:socket.user._id,
+                content:response,
+                role:"model"
+            })
+
+             const chathistory=(await messageModel.find({
+                chat:messagePayload.chat
+            }).sort({createdAt:-1}),limit(20).lean()).reverse()
+
+            console.log("chathistory",chathistory.map(item =>{
+                return {role:item.role,
+                parts:[{text:item.content}]}
+            }))
+
+            
             socket.emit("ai-response", {
                 content: response,
                 chat: messagePayload.chat,
