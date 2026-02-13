@@ -4,16 +4,28 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const ai = new GoogleGenAI({
-    apiKey: process.env.GEMINI_API_KEY,
+  apiKey: process.env.GEMINI_API_KEY,
 });
 
 async function generateResponse(content) {
-    const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: content,
-    });
+  const response = await ai.models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: content,
+  });
 
-    return response.text;
+  return response.text;
 }
 
-export { generateResponse };
+async function generateVectors(content) {
+  const response = await ai.models.embedContent({
+    model: "gemini-embedding-001",
+    contents: content,
+    config: {
+      outputDimensionality: 768, // bydefault dimension is 3072
+    },
+  });
+  return response.embeddings[0].values;
+
+}
+
+export { generateResponse,generateVectors};
