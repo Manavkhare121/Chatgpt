@@ -38,17 +38,16 @@ function initSocketServer(httpServer) {
         role: "User",
       });
 
-      
       const vectors = await generateVectors(messagePayload.content);
       console.log("vector generated", vectors);
 
-       const memory = await queryMemory({
+      const memory = await queryMemory({
         queryVector: vectors,
         limit: 3,
-        metadata: {},
+        metadata: {user:socket.user._id},
       });
       console.log("Memory matches", memory);
-      
+
       //user longterm memory is stored in this
       await createMemory({
         vectors,
@@ -60,9 +59,6 @@ function initSocketServer(httpServer) {
         },
       });
 
-
-     
-
       const chathistory = (
         await messageModel
           .find({ chat: messagePayload.chat })
@@ -71,14 +67,34 @@ function initSocketServer(httpServer) {
           .lean()
       ).reverse();
 
-      console.log(
-        "chathistory",
-        chathistory.map((item) => {
-          return { role: item.role, parts: [{ text: item.content }] };
-        }),
-      );
+      // console.log(
+      //   "chathistory",
+      //   chathistory.map((item) => {
+      //     return { role: item.role, parts: [{ text: item.content }] };
+      //   }),
+      // );
+      const stm = chathistory.map((item) => {
+        return { role: item.role, parts: [{ text: item.content }] };
+      });
 
-      const response = await generateResponse(messagePayload.content);
+      const ltm = [
+        {
+          role: "user", //it is not user and model system is as thing that i used to show the context to the ai like pahele kya baat hui thi and all
+          parts: [
+            {
+              text: `
+            these are some previous messages from the chat, use them to generate a response
+
+                        ${memory.map((item) => item.metadata.text).join("\n")}`,
+            },
+          ],
+        },
+      ];
+
+     console.log(ltm[0]);
+     console.log(stm);
+
+      const response = await generateResponse([...ltm ,...stm]);
 
       const responseMessage = await messageModel.create({
         chat: messagePayload.chat,
@@ -98,8 +114,6 @@ function initSocketServer(httpServer) {
           text: response,
         },
       });
-
-      
 
       socket.emit("ai-response", {
         content: response,
