@@ -6,7 +6,13 @@ import { generateResponse, generateVectors } from "../services/ai.service.js";
 import { messageModel } from "../models/message.model.js";
 import { createMemory, queryMemory } from "../services/vector.service.js";
 function initSocketServer(httpServer) {
-  const io = new Server(httpServer, {});
+  const io = new Server(httpServer, {
+        cors: {
+            origin: "http://localhost:5173",
+            allowedHeaders: [ "Content-Type", "Authorization" ],
+            credentials: true
+        }
+    })
   // Socket.io auth middleware
   io.use(async (socket, next) => {
     const cookies = cookie.parse(socket.handshake.headers?.cookie || "");
@@ -27,7 +33,7 @@ function initSocketServer(httpServer) {
 
   io.on("connection", (socket) => {
     console.log("New socket connection:", socket.id);
-
+    console.log("user connected",socket.user._id)
     socket.on("ai-message", async (messagePayload) => {
       console.log(messagePayload);
 
@@ -145,7 +151,7 @@ function initSocketServer(httpServer) {
 
       const reponseVectors = await generateVectors(response);*/
 
-      
+
       //Save ai response in DB and Generate the vector for ai response
       const [responseMessage, responseVectors] = await Promise.all([
         messageModel.create({
