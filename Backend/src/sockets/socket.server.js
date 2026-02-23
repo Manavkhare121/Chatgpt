@@ -6,29 +6,23 @@ import { generateResponse, generateVectors } from "../services/ai.service.js";
 import { messageModel } from "../models/message.model.js";
 import { createMemory, queryMemory } from "../services/vector.service.js";
 function initSocketServer(httpServer) {
-    const io = new Server(httpServer, {
-      cors: {
-        origin: ["http://localhost:5173", "http://localhost:8000", "https://chatgpt-04z4.onrender.com", "https://chatgpt-1-4oi8.onrender.com"],
-        allowedHeaders: [ "Content-Type", "Authorization" ],
-        credentials: true
-      }
+  const io = new Server(httpServer, {
+        cors: {
+            origin: "http://localhost:5173",
+            allowedHeaders: [ "Content-Type", "Authorization" ],
+            credentials: true
+        }
     })
   // Socket.io auth middleware
   io.use(async (socket, next) => {
-    // Accept token from cookie, Authorization header, or socket.handshake.auth
     const cookies = cookie.parse(socket.handshake.headers?.cookie || "");
-    const headerAuth = socket.handshake.headers?.authorization;
-    const authToken = headerAuth ? headerAuth.split(' ')[1] : null;
-    const handshakeToken = socket.handshake.auth?.token;
 
-    const token = cookies.token || authToken || handshakeToken;
-
-    if (!token) {
+    if (!cookies.token) {
       return next(new Error("Authentication error: No token Provided"));
     }
 
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const decoded = jwt.verify(cookies.token, process.env.JWT_SECRET);
       const user = await usermodel.findById(decoded.id);
       socket.user = user;
       next();

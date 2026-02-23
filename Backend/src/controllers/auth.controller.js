@@ -19,14 +19,9 @@ async function registerUser(req,res) {
         password:hashPassword
     })
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+    const token =jwt.sign({id:user._id},process.env.JWT_SECRET)
 
-    res.cookie("token", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    res.cookie("token",token);
 
     res.status(201).json({
         message:"User registered successfully",
@@ -54,14 +49,9 @@ async function loginUser(req,res) {
         return res.status(400).json({message:"Invalid email or password"})
     }
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+    const token=jwt.sign({id:user._id},process.env.JWT_SECRET);
 
-    res.cookie("token", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    res.cookie("token",token);
 
     res.status(200).json({
         message:"user logged in successfully",
