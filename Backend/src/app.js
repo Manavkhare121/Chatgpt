@@ -6,7 +6,7 @@ import cors from "cors"
 const app=express();
 
 app.use(cors({
-    origin:['http://localhost:5173','https://chatgpt-1-4oi8.onrender.com'],
+    origin:['http://localhost:5173','https://chatgpt-rag-1.onrender.com'],
     credentials:true
 }))
 app.use(express.json());

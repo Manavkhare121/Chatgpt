@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 const BACKEND_URL =
   import.meta.env.VITE_API_BASE ||
-  "https://chatgpt-04z4.onrender.com";
+  "https://chatgpt-rag.onrender.com";
 
 const Login = () => {
   const [form, setForm] = useState({ email: '', password: '' });
