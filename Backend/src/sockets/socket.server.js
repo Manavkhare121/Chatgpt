@@ -15,14 +15,20 @@ function initSocketServer(httpServer) {
     })
   // Socket.io auth middleware
   io.use(async (socket, next) => {
+    // Accept token from cookie, Authorization header, or socket.handshake.auth
     const cookies = cookie.parse(socket.handshake.headers?.cookie || "");
+    const headerAuth = socket.handshake.headers?.authorization;
+    const authToken = headerAuth ? headerAuth.split(' ')[1] : null;
+    const handshakeToken = socket.handshake.auth?.token;
 
-    if (!cookies.token) {
+    const token = cookies.token || authToken || handshakeToken;
+
+    if (!token) {
       return next(new Error("Authentication error: No token Provided"));
     }
 
     try {
-      const decoded = jwt.verify(cookies.token, process.env.JWT_SECRET);
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
       const user = await usermodel.findById(decoded.id);
       socket.user = user;
       next();
