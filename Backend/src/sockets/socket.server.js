@@ -6,12 +6,12 @@ import { generateResponse, generateVectors } from "../services/ai.service.js";
 import { messageModel } from "../models/message.model.js";
 import { createMemory, queryMemory } from "../services/vector.service.js";
 function initSocketServer(httpServer) {
-  const io = new Server(httpServer, {
-        cors: {
-            origin: "http://localhost:5173",
-            allowedHeaders: [ "Content-Type", "Authorization" ],
-            credentials: true
-        }
+    const io = new Server(httpServer, {
+      cors: {
+        origin: ["http://localhost:5173", "http://localhost:8000", "https://chatgpt-04z4.onrender.com", "https://chatgpt-1-4oi8.onrender.com"],
+        allowedHeaders: [ "Content-Type", "Authorization" ],
+        credentials: true
+      }
     })
   // Socket.io auth middleware
   io.use(async (socket, next) => {
