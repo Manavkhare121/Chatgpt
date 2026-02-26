@@ -19,7 +19,7 @@ import {
 
 const BACKEND_URL =
   import.meta.env.VITE_API_BASE ||
-  "https://chatgpt-rag-1.onrender.com";
+  "https://chatgpt-rag.onrender.com";
 
 const Home = () => {
   const dispatch = useDispatch();
