@@ -8,7 +8,7 @@ import { createMemory, queryMemory } from "../services/vector.service.js";
 function initSocketServer(httpServer) {
   const io = new Server(httpServer, {
         cors: {
-            origin: "http://localhost:5173",
+            origin: ["http://localhost:5173",'https://chatgpt-rag-1.onrender.com'],
             allowedHeaders: [ "Content-Type", "Authorization" ],
             credentials: true
         }
